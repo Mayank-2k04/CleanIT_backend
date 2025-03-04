@@ -1,4 +1,4 @@
 .venv
 .idea
 testdb.db
-./myapi/__pycache
+myapi/__pycache__/
