@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String
 from .databaseconnect import base
 
 class User(base):
+    __tablename__="Student"
     s_id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String)
     last_name = Column(String)
