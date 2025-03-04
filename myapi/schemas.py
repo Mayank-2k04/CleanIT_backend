@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-class Student(BaseModel):
+class User(BaseModel):
     first_name : str
     last_name : str
     hostel_block : str
