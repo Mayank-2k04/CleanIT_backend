@@ -1,5 +1,14 @@
-from sqlalchemy import Column, Integer, String, BigInteger, Index, ForeignKey, func, DateTime, Enum
+from sqlalchemy import Column, Integer, String, BigInteger, Index, ForeignKey, func, DateTime, Enum, Boolean
 from .databaseconnect import base
+from sqlalchemy.orm import relationship
+
+class User(base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(100), unique=True, nullable=False, index=True)
+    otp = Column(String(6), nullable=True)  # Store the latest OTP
+    is_verified = Column(Boolean, default=False)  # Mark when OTP is verified
+
 
 class Student(base):
     __tablename__="Student"
@@ -7,14 +16,20 @@ class Student(base):
     name = Column(String(100), nullable=False)
     r_id = Column(Integer, ForeignKey("Rooms.r_id"), nullable=False)
     phone_number = Column(BigInteger, unique=True, nullable=False)
+
+    room = relationship("Rooms", back_populates="students")
+
     __table_args__ = (Index("idx_hostel_room", "hostel_block", "room_number","email"),)  # Index for faster search
 
 class Employee(base):
-    __tablename__="Cleaners"
+    __tablename__="Employee"
     c_id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     hostel_block = Column(String(10), nullable=False)
     phone_number = Column(BigInteger, unique=True, nullable=False)
+    available = Column(Boolean, default=True)
+
+    tasks = relationship("TaskAssignments",back_populates="employee")
     __table_args__ = (Index("idx_hostel_block", "hostel_block"),)
 
 class Admin(base):
@@ -26,9 +41,13 @@ class Admin(base):
     __table_args__ = (Index("idx_hostel_block", "hostel_block"),)
 
 class Rooms(base):
+    __tablename__="Rooms"
     r_id = Column(Integer, primary_key=True, index=True)
     hostel_block = Column(String(10), nullable=False)
     room_number = Column(Integer, nullable=False)
+
+    request = relationship("Requests",back_populates="room")
+    students = relationship("Student", back_populates="room")
 
 class Request(base):
     __tablename__ = "Requests"
@@ -38,14 +57,25 @@ class Request(base):
     completion_time = Column(DateTime, nullable=True)
     status = Column(Enum("pending", "in process", "completed", name="task_status"), nullable=False, default="pending")
 
+    room = relationship("Rooms",back_populates="request")
+    assignments = relationship("TaskAssignments",back_populates="request")
+
 class TaskAssignment(base):
     __tablename__ = "TaskAssignments"
-
     assignment_id = Column(Integer, primary_key=True, index=True)
     request_id = Column(Integer, ForeignKey("Requests.request_id"), nullable=False)  # References Request table
-    staff_id = Column(Integer, ForeignKey("Staff.staff_id"), nullable=False)  # References Staff table
+    staff_id = Column(Integer, ForeignKey("Employee.c_id"), nullable=True) # Staff might not be assigned
     assigned_time = Column(DateTime, nullable=False, default=func.now())  # Auto-assign current timestamp
     completion_time = Column(DateTime, nullable=True)  # Will be updated when task is completed
 
+    request = relationship("Request", back_populates="assignments", cascade="all, delete")
+    employee = relationship("Employee", back_populates="tasks")
 
+"""
+Login route
+Access room using student email(connect table students)
+Admin can view the available employees in their block by checking availability
+Mark task as completed
+Request a task
 
+"""
