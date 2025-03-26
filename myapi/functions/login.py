@@ -28,7 +28,7 @@ def mail_otp(email: str, db:Session):
     return f"OTP Send to email address {email}. Check spam if not received."
 
 
-def verify_otp(email: str, otp: str, db:Session):
+def verify_otp(email:str, otp:str, db:Session):
     record = db.query(models.UserOTP).filter(models.UserOTP.email == email)
     user = record.first()
     if not user or otp != user.otp:
@@ -40,7 +40,8 @@ def verify_otp(email: str, otp: str, db:Session):
 
     otp_age = (datetime.now(timezone.utc) - created_at_utc).total_seconds()
     if otp_age > 60 * ACCESS_TIME:
-        record.delete()
+        record.delete(synchronize_session=False)
+        db.commit()
         raise HTTPException(status_code=400, detail="OTP expired!")
     the_token = create_token(
         {"sub": user.email},
@@ -48,4 +49,5 @@ def verify_otp(email: str, otp: str, db:Session):
     )
     record.delete(synchronize_session=False)
     db.commit()
-    return {"access token": the_token, "token type": "bearer"}
+    return {"access_token": the_token, "token_type": "bearer"}
+
