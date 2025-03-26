@@ -2,24 +2,24 @@ from sqlalchemy import Column, Integer, String, BigInteger, Index, ForeignKey, f
 from .databaseconnect import base
 from sqlalchemy.orm import relationship
 
-class User(base):
-    __tablename__ = "users"
+class UserOTP(base):
+    __tablename__ = "usersOtp"
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(100), unique=True, nullable=False, index=True)
     otp = Column(String(6), nullable=True)  # Store the latest OTP
-    is_verified = Column(Boolean, default=False)  # Mark when OTP is verified
-
+    is_verified = Column(Boolean, default=False)# Mark when OTP is verified
+    created_at = Column(DateTime, server_default=func.now())
 
 class Student(base):
     __tablename__="Student"
     email = Column(String(100), primary_key=True, nullable=False, index=True)
     name = Column(String(100), nullable=False)
     r_id = Column(Integer, ForeignKey("Rooms.r_id"), nullable=False)
-    phone_number = Column(BigInteger, unique=True, nullable=False)
+    phone_number = Column(BigInteger, unique=False, nullable=False)
 
-    room = relationship("Rooms", back_populates="students")
+    room = relationship("Room", back_populates="students")
 
-    __table_args__ = (Index("idx_hostel_room", "hostel_block", "room_number","email"),)  # Index for faster search
+    __table_args__ = (Index("idx_hostel_room", "r_id","email"),)  # Index for faster search
 
 class Employee(base):
     __tablename__="Employee"
@@ -29,7 +29,7 @@ class Employee(base):
     phone_number = Column(BigInteger, unique=True, nullable=False)
     available = Column(Boolean, default=True)
 
-    tasks = relationship("TaskAssignments",back_populates="employee")
+    tasks = relationship("TaskAssignment",back_populates="employee")
     __table_args__ = (Index("idx_hostel_block", "hostel_block"),)
 
 class Admin(base):
@@ -38,15 +38,15 @@ class Admin(base):
     name = Column(String(100), nullable=False)
     hostel_block = Column(String(10), nullable=False)
     phone_number = Column(BigInteger, unique=True, nullable=False)
-    __table_args__ = (Index("idx_hostel_block", "hostel_block"),)
+    __table_args__ = (Index("idx_hostel_block1", "hostel_block"),)
 
-class Rooms(base):
+class Room(base):
     __tablename__="Rooms"
     r_id = Column(Integer, primary_key=True, index=True)
     hostel_block = Column(String(10), nullable=False)
     room_number = Column(Integer, nullable=False)
 
-    request = relationship("Requests",back_populates="room")
+    request = relationship("Request",back_populates="room")
     students = relationship("Student", back_populates="room")
 
 class Request(base):
@@ -57,8 +57,8 @@ class Request(base):
     completion_time = Column(DateTime, nullable=True)
     status = Column(Enum("pending", "in process", "completed", name="task_status"), nullable=False, default="pending")
 
-    room = relationship("Rooms",back_populates="request")
-    assignments = relationship("TaskAssignments",back_populates="request")
+    room = relationship("Room",back_populates="request")
+    assignments = relationship("TaskAssignment",back_populates="request")
 
 class TaskAssignment(base):
     __tablename__ = "TaskAssignments"
