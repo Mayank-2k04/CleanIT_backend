@@ -12,3 +12,10 @@ engine = create_engine(SQL_DATABASE_URL,connect_args=connect_args)
 local_session = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 base = declarative_base()
+
+def get_db():
+    db = local_session()
+    try:
+        yield db
+    finally:
+        db.close()
