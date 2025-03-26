@@ -1,17 +1,11 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from .. import models,sendemail
-from ..config import SECRET_KEY,ALGORITHM,ACCESS_TIME
+from ..config import ACCESS_TIME
 from datetime import datetime, timedelta, timezone
-from jose import jwt
+from myapi.auth import token
 
 """Otp module using email."""
-
-def create_token(data: dict, expiry: timedelta):
-    encode_data = data.copy()
-    expire = datetime.now(timezone.utc) + expiry
-    encode_data.update({"exp":expire})
-    return jwt.encode(encode_data, SECRET_KEY, ALGORITHM)
 
 
 def mail_otp(email: str, db:Session):
@@ -21,11 +15,17 @@ def mail_otp(email: str, db:Session):
         raise HTTPException(status_code=404, detail="User not found!")
 
     OTP = sendemail.generate_otp()
+
     if sendemail.send_otp_email(email, OTP):
-        addotp = models.UserOTP(email=useremail.email, otp=OTP)
-        db.add(addotp)
-        db.commit()
-        db.refresh(addotp)
+        oldotp = db.query(models.UserOTP).filter(models.UserOTP.email == email).first()
+        if not oldotp:
+            addotp = models.UserOTP(email=useremail.email, otp=OTP)
+            db.add(addotp)
+            db.commit()
+            db.refresh(addotp)
+        else:
+            oldotp.otp = OTP
+            db.commit()
         return f"OTP Send to email address {email}. Check spam if not received."
     raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Email not sent.")
 
@@ -45,8 +45,8 @@ def verify_otp(email:str, otp:str, db:Session):
         record.delete(synchronize_session=False)
         db.commit()
         raise HTTPException(status_code=400, detail="OTP expired!")
-    the_token = create_token(
-        {"sub": user.email},
+    the_token = token.create_token(
+        {"sub": user.email}, #verification is done through email for student
         timedelta(minutes=ACCESS_TIME)
     )
     record.delete(synchronize_session=False)
