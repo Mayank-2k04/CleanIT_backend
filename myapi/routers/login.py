@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from .. import databaseconnect
+from .. import databaseconnect,schemas
 from ..functions import login
 
 
@@ -13,6 +13,6 @@ router = APIRouter(
 def send_otp(email: str, db : Session=Depends(databaseconnect.get_db)):
     return login.mail_otp(email, db)
 
-@router.post("/verify-otp")
-def verify(email: str,otp: str, db: Session=Depends(databaseconnect.get_db)):
+@router.post("/verify-otp",response_model=schemas.Token)
+def verify(email:str, otp:str,db: Session=Depends(databaseconnect.get_db)):
     return login.verify_otp(email,otp,db)
