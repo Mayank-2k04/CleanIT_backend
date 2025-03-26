@@ -2,7 +2,5 @@ fastapi
 uvicorn
 sqlalchemy
 pydantic
-
-
-
+jose
 #run pip3 install -r ./requirements.txt
