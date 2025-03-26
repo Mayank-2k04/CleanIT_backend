@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from .. import databaseconnect,schemas
-from ..functions import login
-
+from myapi.student import login
 
 router = APIRouter(
-    prefix="/login",
+    prefix="/student/login",
     tags=["Login"]
 )
 
