@@ -26,8 +26,7 @@ CleanIt Team
             server.login(SENDER_EMAIL, SENDER_PASSWORD)
             server.sendmail(SENDER_EMAIL, email, message)
         return True
-    except Exception as e:
-        print("Error sending email:", e)
+    except Exception:
         return False
 
 
