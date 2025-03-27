@@ -46,7 +46,7 @@ def verify_otp(email:str, otp:str, db:Session):
         db.commit()
         raise HTTPException(status_code=400, detail="OTP expired!")
     the_token = token.create_token(
-        {"sub": user.email}, #verification is done through email for student
+        {"sub": user.email, "role":"student"}, #verification is done through email for student
         timedelta(minutes=ACCESS_TIME)
     )
     record.delete(synchronize_session=False)
