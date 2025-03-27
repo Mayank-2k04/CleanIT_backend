@@ -9,6 +9,10 @@ class Student(User):
     email : str
     r_id: int
 
+class DisplayStudent(Student):
+    class Config:
+        orm_mode=True
+
 class Request(BaseModel):
     hostel_block : str
     room_number : str
@@ -22,3 +26,11 @@ class StudentLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class OTPRequest(BaseModel):
+    phone: str
+
+class OTPVerification(BaseModel):
+    phone: str
+    code: str
