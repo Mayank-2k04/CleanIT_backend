@@ -14,10 +14,7 @@ class DisplayStudent(Student):
         orm_mode=True
 
 class Request(BaseModel):
-    hostel_block : str
-    room_number : str
-    scheduled_time : str
-    completion_time : str
+    deadline : str
 
 class StudentLogin(BaseModel):
     email: str
@@ -26,7 +23,6 @@ class StudentLogin(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
-
 
 class OTPRequest(BaseModel):
     phone: str
