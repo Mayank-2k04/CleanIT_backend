@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException,status
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from .. import schemas, databaseconnect, models
-from ..functions import authorization
+from ..auth import authorization
 
 
 router = APIRouter(
@@ -14,7 +14,7 @@ router = APIRouter(
 def create_user(
         request : schemas.Student,
         db : Session=Depends(databaseconnect.get_db),
-        email: str = Depends(authorization.get_current_user)):
+        email: str = Depends(authorization.get_current_student)):
 
     admin_user = db.query(models.Student).filter(models.Student.email == email).first()
     if not admin_user:
