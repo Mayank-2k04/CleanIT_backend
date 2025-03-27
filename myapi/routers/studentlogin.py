@@ -5,10 +5,10 @@ from myapi.student import login
 
 router = APIRouter(
     prefix="/student/login",
-    tags=["Login"]
+    tags=["StudentLogin"]
 )
 
-@router.post("/send-otp", tags=["Login"])
+@router.post("/send-otp")
 def send_otp(email: str, db : Session=Depends(databaseconnect.get_db)):
     return login.mail_otp(email, db)
 
