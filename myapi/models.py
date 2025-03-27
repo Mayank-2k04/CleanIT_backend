@@ -54,9 +54,8 @@ class Request(base):
     request_id = Column(Integer, primary_key=True, index=True)
     r_id = Column(Integer, ForeignKey("Rooms.r_id"), nullable=False)
     assigned_time = Column(DateTime, nullable=False, default=func.now())
-    completion_time = Column(DateTime, nullable=True)
-    status = Column(Enum("pending", "in process", "completed", name="task_status"), nullable=False, default="pending")
-
+    deadline = Column(DateTime, nullable=True)
+    progress = Column(Enum("pending", "in process", "completed", name="task_status"), nullable=False, default="pending")
     room = relationship("Room",back_populates="request")
     assignments = relationship("TaskAssignment",back_populates="request")
 
