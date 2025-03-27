@@ -11,7 +11,6 @@ app.include_router(userpoplulation.router)
 app.include_router(staff_login.router)
 app.include_router(adminroutes.router)
 
-
-#TODO make schemas for requests
+#make schemas for requests
 
 
