@@ -28,7 +28,22 @@ def get_current_user(token: str):
 
 # Role-based authentication
 def get_current_student(token: str = Depends(student_oauth2_scheme)):
-    return get_current_user(token)
+    user =  get_current_user(token)
+    if user["role"] != "student":
+        raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Access Denied",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    return user
 
 def get_current_worker(token: str = Depends(staff_oauth2_scheme)):
-    return get_current_user(token)
+    user =  get_current_user(token)
+    if user["role"] not in ["admin", "worker"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access Denied",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user
+
