@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
 
 
 class User(BaseModel):
@@ -30,3 +32,21 @@ class OTPRequest(BaseModel):
 class OTPVerification(BaseModel):
     phone: str
     code: str
+
+class RoomBase(BaseModel):
+    hostel_block: str
+    room_number: int
+
+    class Config:
+        from_attributes: True
+
+class DisplayRequest(BaseModel):
+    assigned_time: datetime
+    deadline: Optional[datetime]
+    progress: str
+    room: RoomBase
+
+    class Config:
+        from_attributes: True
+
+
