@@ -4,8 +4,6 @@ from fastapi import HTTPException,status
 from sqlalchemy.orm import Session
 
 
-
-
 def create_request(
         request: schemas.Request,
         db: Session,
@@ -17,7 +15,7 @@ def create_request(
 
     old_req = db.query(models.Request).filter(
         models.Request.r_id == s_r_id,
-        models.Request.progress == "pending"
+        models.Request.progress.in_(["pending", "in process"])
     ).first()
 
     if old_req:
@@ -34,7 +32,7 @@ def create_request(
 
     new_request = models.Request(
         r_id=s_r_id,
-        assigned_time=datetime.now(),
+        created_time=datetime.now(),
         deadline=deadline_datetime,
         progress="pending"
     )
@@ -56,8 +54,43 @@ def get_request(
     ).first()
     room_id = student.r_id
     req = db.query(models.Request).filter(
-        models.Request.r_id == room_id
+        models.Request.r_id == room_id,
+        models.Request.progress.in_(["pending", "in process"])
     ).first()
     if not req:
         raise HTTPException(status_code=404, detail="No request found for your room.")
     return req
+
+def get_details(
+        user_detail: dict,
+        db: Session
+):
+    mail = user_detail['id']
+    record = db.query(models.Student).filter(
+        models.Student.email == mail
+    ).first()
+    if not record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student not found")
+    return record
+
+def history(
+        user_detail: dict,
+        db: Session
+):
+    email = user_detail['id']
+    student = db.query(models.Student).filter(
+        models.Student.email == email
+    ).first()
+
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found.")
+
+    room_id = student.r_id
+    his = db.query(models.Request).filter(
+        models.Request.r_id == room_id,
+        models.Request.progress == "completed"
+    ).all()
+
+    if not his:
+        raise HTTPException(status_code=404, detail="No History Found")
+    return his
