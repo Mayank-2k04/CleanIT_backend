@@ -53,21 +53,20 @@ class Request(base):
     __tablename__ = "Requests"
     request_id = Column(Integer, primary_key=True, index=True)
     r_id = Column(Integer, ForeignKey("Rooms.r_id"), nullable=False)
-    assigned_time = Column(DateTime, nullable=False, default=func.now())
+    created_time = Column(DateTime, nullable=False, default=func.now())
     deadline = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
     progress = Column(Enum("pending", "in process", "completed", name="task_status"), nullable=False, default="pending")
+
     room = relationship("Room",back_populates="request")
-    assignments = relationship("TaskAssignment",back_populates="request")
 
 class TaskAssignment(base):
     __tablename__ = "TaskAssignments"
     assignment_id = Column(Integer, primary_key=True, index=True)
-    request_id = Column(Integer, ForeignKey("Requests.request_id"), nullable=False)  # References Request table
-    staff_id = Column(Integer, ForeignKey("Employee.c_id"), nullable=True) # Staff might not be assigned
+    request_id = Column(Integer, nullable=False)  # References Request table
+    staff_id = Column(Integer, ForeignKey("Employee.c_id"), nullable=False)
     assigned_time = Column(DateTime, nullable=False, default=func.now())  # Auto-assign current timestamp
-    completion_time = Column(DateTime, nullable=True)  # Will be updated when task is completed
 
-    request = relationship("Request", back_populates="assignments", cascade="all, delete")
     employee = relationship("Employee", back_populates="tasks")
 
 """
