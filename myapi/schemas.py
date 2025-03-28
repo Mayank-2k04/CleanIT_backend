@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from typing import Optional,List
 
 
 class User(BaseModel):
@@ -10,10 +10,6 @@ class User(BaseModel):
 class Student(User):
     email : str
     r_id: int
-
-class DisplayStudent(Student):
-    class Config:
-        orm_mode=True
 
 class Request(BaseModel):
     deadline : str
@@ -40,8 +36,8 @@ class RoomBase(BaseModel):
     class Config:
         from_attributes: True
 
-class DisplayRequest(BaseModel):
-    assigned_time: datetime
+class DisplayCurrentRequest(BaseModel):
+    created_time: datetime
     deadline: Optional[datetime]
     progress: str
     room: RoomBase
@@ -49,4 +45,15 @@ class DisplayRequest(BaseModel):
     class Config:
         from_attributes: True
 
+class DisplayStudent(BaseModel):
+    name: str
+    email: str
+    phone_number: int
+    room: RoomBase
+    class Config:
+        from_attributes = True
 
+class History(BaseModel):
+    completed_at: datetime
+    class Config:
+        from_attributes=True
