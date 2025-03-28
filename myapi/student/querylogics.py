@@ -46,3 +46,18 @@ def create_request(
         "request_id": new_request.request_id,
         "room_id": s_r_id
     }
+
+def get_request(
+        user_detail: dict,
+        db: Session
+):
+    student = db.query(models.Student).filter(
+        models.Student.email == user_detail['id']
+    ).first()
+    room_id = student.r_id
+    req = db.query(models.Request).filter(
+        models.Request.r_id == room_id
+    ).first()
+    if not req:
+        raise HTTPException(status_code=404, detail="No request found for your room.")
+    return req
