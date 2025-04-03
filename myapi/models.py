@@ -59,15 +59,17 @@ class Request(base):
     progress = Column(Enum("pending", "in process", "completed", name="task_status"), nullable=False, default="pending")
 
     room = relationship("Room",back_populates="request")
+    assignments = relationship("TaskAssignment", back_populates="request")
 
 class TaskAssignment(base):
     __tablename__ = "TaskAssignments"
     assignment_id = Column(Integer, primary_key=True, index=True)
-    request_id = Column(Integer, nullable=False)  # References Request table
+    request_id = Column(Integer,ForeignKey("Requests.request_id"), nullable=False)  # References Request table
     staff_id = Column(Integer, ForeignKey("Employee.c_id"), nullable=False)
     assigned_time = Column(DateTime, nullable=False, default=func.now())  # Auto-assign current timestamp
 
     employee = relationship("Employee", back_populates="tasks")
+    request = relationship("Request", back_populates="assignments")
 
 """
 Login route
