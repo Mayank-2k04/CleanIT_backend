@@ -1,6 +1,5 @@
 .venv
 .idea
-testdb.db
 myapi/__pycache__/
 myapi/*.pyc
 myapi/*.pyo
