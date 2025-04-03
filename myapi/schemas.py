@@ -57,3 +57,30 @@ class History(BaseModel):
     completed_at: datetime
     class Config:
         from_attributes=True
+
+class RequestDeadline(BaseModel):
+    deadline: datetime
+    class Config:
+        from_attributes=True
+
+class Tasks(BaseModel):
+    assignment_id: int
+    request_id: int
+    assigned_time: datetime
+    request: RequestDeadline
+
+    class Config:
+        from_attributes = True
+
+class RequestAdminView(BaseModel):
+    room: RoomBase
+    deadline: datetime
+    class Config:
+        from_attributes = True
+
+class WorkerAdminView(BaseModel):
+    c_id: int
+    name: str
+    hostel_block: str
+    class Config:
+        from_attributes = True
